@@ -1,4 +1,4 @@
-package wishprometheus
+package promwish
 
 import (
 	"net/http"

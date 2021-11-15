@@ -1,4 +1,4 @@
-module github.com/caarlos0/wish-prometheus
+module github.com/caarlos0/promwish
 
 go 1.17
 
