@@ -24,7 +24,7 @@ func Middleware(address string) wish.Middleware {
 	})
 
 	http.Handle("/metrics", promhttp.Handler())
-	go http.ListenAndServe(address, nil)
+	go http.ListenAndServe(address, nil) // TODO: should probably better handle server shutdown
 	return func(sh ssh.Handler) ssh.Handler {
 		return func(s ssh.Session) {
 			sessionsCreated.Inc()
