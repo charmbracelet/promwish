@@ -8,6 +8,7 @@ require (
 	github.com/charmbracelet/wish v0.0.0-00010101000000-000000000000
 	github.com/gliderlabs/ssh v0.3.3
 	github.com/prometheus/client_golang v1.11.0
+	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
 )
 
 require (
@@ -22,7 +23,6 @@ require (
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.26.0 // indirect
 	github.com/prometheus/procfs v0.6.0 // indirect
-	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5 // indirect
 	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c // indirect
 	google.golang.org/protobuf v1.26.0-rc.1 // indirect
 )
