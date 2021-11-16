@@ -1,4 +1,4 @@
-module github.com/caarlos0/promwish
+module github.com/charmbracelet/promwish
 
 go 1.17
 

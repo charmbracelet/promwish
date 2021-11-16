@@ -1,3 +1,4 @@
+// Package promwish provides a simple middleware to expose some metrics to Prometheus.
 package promwish
 
 import (
@@ -10,6 +11,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
+// Middleware starts a HTTP server on the given address, serving the metrics to /address.
 func Middleware(address string) wish.Middleware {
 	sessionsCreated := promauto.NewCounter(prometheus.CounterOpts{
 		Name: "wish_sessions_created_total",
