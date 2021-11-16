@@ -3,6 +3,7 @@ package promwish
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/charmbracelet/wish"
 	"github.com/gliderlabs/ssh"
@@ -31,10 +32,19 @@ func MiddlewareRegistry(registry prometheus.Registerer) wish.Middleware {
 		Help: "The total number of sessions created",
 	})
 
+	sessionsDuration := promauto.With(registry).NewCounter(prometheus.CounterOpts{
+		Name: "wish_sessions_duration_seconds",
+		Help: "The total sessions duration in seconds",
+	})
+
 	return func(sh ssh.Handler) ssh.Handler {
 		return func(s ssh.Session) {
+			n := time.Now()
 			sessionsCreated.Inc()
-			defer sessionsFinished.Inc()
+			defer func() {
+				sessionsFinished.Inc()
+				sessionsDuration.Add(time.Since(n).Seconds())
+			}()
 			sh(s)
 		}
 	}
