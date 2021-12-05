@@ -30,9 +30,9 @@ func TestMiddleware(t *testing.T) {
 		t.Error(err)
 	}
 	for _, m := range []string{
-		"wish_sessions_created_total 1",
-		"wish_sessions_finished_total 1",
-		"wish_sessions_duration_seconds 1",
+		`wish_sessions_created_total{app="test"} 1`,
+		`wish_sessions_finished_total{app="test"} 1`,
+		`wish_sessions_duration_seconds{app="test"} 1`,
 	} {
 		if !strings.Contains(string(bts), m) {
 			t.Errorf("expected to find %q, got %s", m, string(bts))
@@ -42,7 +42,7 @@ func TestMiddleware(t *testing.T) {
 
 func setup(t *testing.T) *gossh.Session {
 	session, _, cleanup := testsession.New(t, &ssh.Server{
-		Handler: promwish.Middleware("")(func(s ssh.Session) {
+		Handler: promwish.Middleware("", "test")(func(s ssh.Session) {
 			s.Write([]byte("test"))
 			time.Sleep(time.Second)
 		}),
