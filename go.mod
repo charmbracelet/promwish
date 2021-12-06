@@ -2,10 +2,8 @@ module github.com/charmbracelet/promwish
 
 go 1.17
 
-replace github.com/charmbracelet/wish => ../wish
-
 require (
-	github.com/charmbracelet/wish v0.0.0-00010101000000-000000000000
+	github.com/charmbracelet/wish v0.1.0
 	github.com/gliderlabs/ssh v0.3.3
 	github.com/prometheus/client_golang v1.11.0
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
