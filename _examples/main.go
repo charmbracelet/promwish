@@ -1,3 +1,9 @@
+// Package main provides an example of how to use the promwish package.
+//
+// You can test with:
+//   go run main.go
+//   ssh -o UserKnownHostsFile=/dev/null -p 2222 localhost
+//   curl -s localhost:9222/metrics | grep wish_
 package main
 
 import (
