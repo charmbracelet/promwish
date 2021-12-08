@@ -14,7 +14,7 @@ This will create the metrics and start a HTTP server on `localhost:9222` to expo
 
 You can also use `promwish.MiddlewareRegistry` and `promwish.Listen` if you need more options.
 
-Check the [_examples folder](/_examples) out.
+Check the [_examples folder](/_examples) for a full working example.
 
 ## Example Dashboard
 
