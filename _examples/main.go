@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/promwish"
@@ -54,6 +53,7 @@ func main() {
 // Just a generic tea.Model to demo terminal information of ssh.
 type model struct {
 	user, term string
+	quitting   bool
 }
 
 func (m model) Init() tea.Cmd {
@@ -61,17 +61,13 @@ func (m model) Init() tea.Cmd {
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	switch msg.(type) {
-	case quitMsg:
-		return m, tea.Quit
+	if !m.quitting {
+		m.quitting = true
+		return m, func() tea.Msg { return nil }
 	}
-	return m, tea.Tick(500*time.Millisecond, func(_ time.Time) tea.Msg {
-		return quitMsg("quit")
-	})
+	return m, tea.Quit
 }
 
 func (m model) View() string {
 	return fmt.Sprintf("\n\nHello, %s. Your terminal is %s!\n\n\n", m.user, m.term)
 }
-
-type quitMsg string
