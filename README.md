@@ -4,6 +4,16 @@ Package promwish provides a simple [wish](http://github.com/charmbracelet/wish) 
 
 ## Example Usage
 
+You can add `promwish` as a middleware to your app:
+
+```go
+promwish.Middleware("localhost:9222", "my-app"),
+```
+
+This will create the metrics and start a HTTP server on `localhost:9222` to expose the metrics.
+
+You can also use `promwish.MiddlewareRegistry` and `promwish.Listen` if you need more options.
+
 Check the [_examples folder](/_examples) out.
 
 ## Example Dashboard
