@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/charmbracelet/wish v0.4.0
 	github.com/gliderlabs/ssh v0.3.4
-	github.com/prometheus/client_golang v1.12.1
+	github.com/prometheus/client_golang v1.12.2
 	golang.org/x/crypto v0.0.0-20220307211146-efcb8507fb70
 )
 
