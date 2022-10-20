@@ -2,7 +2,8 @@ package promwish_test
 
 import (
 	"io"
-	"net/http/httptest"
+	"net"
+	"net/http"
 	"strings"
 	"testing"
 	"time"
@@ -10,18 +11,27 @@ import (
 	"github.com/charmbracelet/promwish"
 	"github.com/charmbracelet/wish/testsession"
 	"github.com/gliderlabs/ssh"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	gossh "golang.org/x/crypto/ssh"
 )
 
 func TestMiddleware(t *testing.T) {
-	var srv = httptest.NewServer(promhttp.Handler())
-	t.Cleanup(srv.Close)
-
-	if err := setup(t).Run(""); err != nil {
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
 		t.Error(err)
 	}
-	resp, err := srv.Client().Get(srv.URL)
+	if err := listener.Close(); err != nil {
+		t.Error(err)
+	}
+
+	if err := testsession.New(t, &ssh.Server{
+		Handler: promwish.Middleware(listener.Addr().String(), "test")(func(s ssh.Session) {
+			_, _ = s.Write([]byte("test"))
+			time.Sleep(time.Second)
+		}),
+	}, nil).Run(""); err != nil {
+		t.Error(err)
+	}
+
+	resp, err := http.Get("http://" + listener.Addr().String())
 	if err != nil {
 		t.Error(err)
 	}
@@ -38,15 +48,4 @@ func TestMiddleware(t *testing.T) {
 			t.Errorf("expected to find %q, got %s", m, string(bts))
 		}
 	}
-}
-
-func setup(t *testing.T) *gossh.Session {
-	session, _, cleanup := testsession.New(t, &ssh.Server{
-		Handler: promwish.Middleware("", "test")(func(s ssh.Session) {
-			s.Write([]byte("test"))
-			time.Sleep(time.Second)
-		}),
-	}, nil)
-	t.Cleanup(cleanup)
-	return session
 }
