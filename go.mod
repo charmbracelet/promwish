@@ -3,7 +3,7 @@ module github.com/charmbracelet/promwish
 go 1.17
 
 require (
-	github.com/charmbracelet/wish v0.6.0
+	github.com/charmbracelet/wish v0.7.0
 	github.com/gliderlabs/ssh v0.3.5
 	github.com/prometheus/client_golang v1.14.0
 )
