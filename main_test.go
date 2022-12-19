@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/charmbracelet/promwish"
+	"github.com/charmbracelet/ssh"
 	"github.com/charmbracelet/wish/testsession"
-	"github.com/gliderlabs/ssh"
 )
 
 func TestMiddleware(t *testing.T) {
