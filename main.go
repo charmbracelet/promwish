@@ -51,9 +51,16 @@ func MiddlewareRegistry(registry prometheus.Registerer, constLabels prometheus.L
 		ConstLabels: constLabels,
 	})
 
+	commandsRan := promauto.With(registry).NewCounterVec(prometheus.CounterOpts{
+		Name:        "wish_sessions_command_runs_total",
+		Help:        "Total number of times a given SSH command was executed",
+		ConstLabels: constLabels,
+	}, []string{"command"})
+
 	return func(sh ssh.Handler) ssh.Handler {
 		return func(s ssh.Session) {
 			n := time.Now()
+			commandsRan.WithLabelValues(s.RawCommand()).Inc()
 			sessionsCreated.Inc()
 			defer func() {
 				sessionsFinished.Inc()
