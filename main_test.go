@@ -23,7 +23,7 @@ func TestMiddleware(t *testing.T) {
 	}
 
 	srv := &ssh.Server{
-		Handler: promwish.Middleware(listener.Addr().String(), "test")(func(s ssh.Session) {
+		Handler: promwish.Middleware(listener.Addr().String(), "test", promwish.DefaultCommandFn)(func(s ssh.Session) {
 			_, _ = s.Write([]byte("test"))
 			time.Sleep(500 * time.Millisecond)
 		}),
@@ -46,11 +46,12 @@ func TestMiddleware(t *testing.T) {
 		t.Error(err)
 	}
 	for _, m := range []string{
-		`wish_sessions_created_total{app="test"} 2`,
-		`wish_sessions_finished_total{app="test"} 2`,
-		`wish_sessions_duration_seconds{app="test"} 1`,
-		`wish_sessions_command_runs_total{app="test",command=""} 1`,
-		`wish_sessions_command_runs_total{app="test",command="my-cmd"} 1`,
+		`wish_sessions_created_total{app="test",command=""} 1`,
+		`wish_sessions_created_total{app="test",command="my-cmd"} 1`,
+		`wish_sessions_finished_total{app="test",command=""} 1`,
+		`wish_sessions_finished_total{app="test",command="my-cmd"} 1`,
+		`wish_sessions_duration_seconds{app="test",command=""} 0.5`,
+		`wish_sessions_duration_seconds{app="test",command="my-cmd"} 0.5`,
 	} {
 		if !strings.Contains(string(bts), m) {
 			t.Errorf("expected to find %q, got %s", m, string(bts))
