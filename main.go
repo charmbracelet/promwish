@@ -60,7 +60,11 @@ func MiddlewareRegistry(registry prometheus.Registerer, constLabels prometheus.L
 	return func(sh ssh.Handler) ssh.Handler {
 		return func(s ssh.Session) {
 			n := time.Now()
-			commandsRan.WithLabelValues(s.RawCommand()).Inc()
+			if len(s.Command()) > 0 {
+				commandsRan.WithLabelValues(s.Command()[0]).Inc()
+			} else {
+				commandsRan.WithLabelValues("").Inc()
+			}
 			sessionsCreated.Inc()
 			defer func() {
 				sessionsFinished.Inc()

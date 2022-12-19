@@ -33,7 +33,7 @@ func TestMiddleware(t *testing.T) {
 		t.Error(err)
 	}
 
-	if err := testsession.New(t, srv, nil).Run("my-cmd"); err != nil {
+	if err := testsession.New(t, srv, nil).Run("my-cmd foo bar args"); err != nil {
 		t.Error(err)
 	}
 
