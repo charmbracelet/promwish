@@ -17,8 +17,27 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-// Middleware starts a HTTP server on the given address, serving the metrics from the default registerer to /metrics.
+// DefaultCommandFn is a CommandFn that returns the first part of s.Command().
+func DefaultCommandFn(s ssh.Session) string {
+	if len(s.Command()) > 0 {
+		return s.Command()[0]
+	}
+	return ""
+}
+
+// CommandFn is used to get the value of the `command` label in the Prometheus metrics.
+type CommandFn func(s ssh.Session) string
+
+// Middleware starts a HTTP server on the given address, serving the metrics
+// from the default registerer to /metrics.
 func Middleware(address, app string) wish.Middleware {
+	return MiddlewareWithCommand(address, app, DefaultCommandFn)
+}
+
+// MiddlewareWithCommand() starts a HTTP server on the given address, serving
+// the metrics from the default registerer to /metrics, using the given
+// CommandFn to extract the `command` label value.
+func MiddlewareWithCommand(address, app string, fn CommandFn) wish.Middleware {
 	go func() {
 		Listen(address)
 	}()
@@ -27,37 +46,38 @@ func Middleware(address, app string) wish.Middleware {
 		prometheus.Labels{
 			"app": app,
 		},
+		fn,
 	)
 }
 
 // Middleware setup the metrics for the given registry without starting any HTTP servers.
 // The caller is then responsible for serving the metrics.
-func MiddlewareRegistry(registry prometheus.Registerer, constLabels prometheus.Labels) wish.Middleware {
-	sessionsCreated := promauto.With(registry).NewCounter(prometheus.CounterOpts{
+func MiddlewareRegistry(registry prometheus.Registerer, constLabels prometheus.Labels, fn CommandFn) wish.Middleware {
+	sessionsCreated := promauto.With(registry).NewCounterVec(prometheus.CounterOpts{
 		Name:        "wish_sessions_created_total",
 		Help:        "The total number of sessions created",
 		ConstLabels: constLabels,
-	})
+	}, []string{"command"})
 
-	sessionsFinished := promauto.With(registry).NewCounter(prometheus.CounterOpts{
+	sessionsFinished := promauto.With(registry).NewCounterVec(prometheus.CounterOpts{
 		Name:        "wish_sessions_finished_total",
 		Help:        "The total number of sessions created",
 		ConstLabels: constLabels,
-	})
+	}, []string{"command"})
 
-	sessionsDuration := promauto.With(registry).NewCounter(prometheus.CounterOpts{
+	sessionsDuration := promauto.With(registry).NewCounterVec(prometheus.CounterOpts{
 		Name:        "wish_sessions_duration_seconds",
 		Help:        "The total sessions duration in seconds",
 		ConstLabels: constLabels,
-	})
+	}, []string{"command"})
 
 	return func(sh ssh.Handler) ssh.Handler {
 		return func(s ssh.Session) {
 			n := time.Now()
-			sessionsCreated.Inc()
+			sessionsCreated.WithLabelValues(fn(s)).Inc()
 			defer func() {
-				sessionsFinished.Inc()
-				sessionsDuration.Add(time.Since(n).Seconds())
+				sessionsFinished.WithLabelValues(fn(s)).Inc()
+				sessionsDuration.WithLabelValues(fn(s)).Add(time.Since(n).Seconds())
 			}()
 			sh(s)
 		}
