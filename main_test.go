@@ -23,7 +23,7 @@ func TestMiddleware(t *testing.T) {
 	}
 
 	srv := &ssh.Server{
-		Handler: promwish.Middleware(listener.Addr().String(), "test", promwish.DefaultCommandFn)(func(s ssh.Session) {
+		Handler: promwish.Middleware(listener.Addr().String(), "test")(func(s ssh.Session) {
 			_, _ = s.Write([]byte("test"))
 			time.Sleep(500 * time.Millisecond)
 		}),
