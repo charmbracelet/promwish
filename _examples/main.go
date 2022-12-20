@@ -1,9 +1,10 @@
 // Package main provides an example of how to use the promwish package.
 //
 // You can test with:
-//   go run main.go
-//   ssh -o UserKnownHostsFile=/dev/null -p 2222 localhost
-//   curl -s localhost:9222/metrics | grep wish_
+//
+//	go run main.go
+//	ssh -o UserKnownHostsFile=/dev/null -p 2222 localhost
+//	curl -s localhost:9222/metrics | grep wish_
 package main
 
 import (
@@ -15,9 +16,9 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/promwish"
+	"github.com/charmbracelet/ssh"
 	"github.com/charmbracelet/wish"
 	bm "github.com/charmbracelet/wish/bubbletea"
-	"github.com/gliderlabs/ssh"
 )
 
 func main() {
