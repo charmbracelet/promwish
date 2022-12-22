@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/charmbracelet/ssh v0.0.0-20221117183211-483d43d97103
-	github.com/charmbracelet/wish v0.7.1-0.20221201144058-7fe3248bf50f
+	github.com/charmbracelet/wish v1.0.0
 	github.com/prometheus/client_golang v1.14.0
 )
 
