@@ -6,9 +6,9 @@ replace github.com/charmbracelet/promwish => ../
 
 require (
 	github.com/charmbracelet/bubbletea v0.23.1
-	github.com/charmbracelet/promwish v0.0.0-00010101000000-000000000000
+	github.com/charmbracelet/promwish v0.5.0
 	github.com/charmbracelet/ssh v0.0.0-20221117183211-483d43d97103
-	github.com/charmbracelet/wish v0.7.1-0.20221201144058-7fe3248bf50f
+	github.com/charmbracelet/wish v1.0.0
 )
 
 require (
@@ -36,9 +36,9 @@ require (
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
-	golang.org/x/crypto v0.0.0-20220826181053-bd7e27e6170d // indirect
-	golang.org/x/sys v0.0.0-20220825204002-c680a09ffe64 // indirect
-	golang.org/x/term v0.0.0-20220722155259-a9ba230a4035 // indirect
-	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/crypto v0.4.0 // indirect
+	golang.org/x/sys v0.3.0 // indirect
+	golang.org/x/term v0.3.0 // indirect
+	golang.org/x/text v0.5.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 )
