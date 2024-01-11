@@ -19,13 +19,22 @@ import (
 	"github.com/charmbracelet/ssh"
 	"github.com/charmbracelet/wish"
 	bm "github.com/charmbracelet/wish/bubbletea"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 )
+
+var keyTypeCounter = promauto.NewCounterVec(prometheus.CounterOpts{
+	Name: "wish_auth_by_type_total",
+	Help: "Custom metric example",
+}, []string{"type"})
 
 func main() {
 	s, err := wish.NewServer(
 		wish.WithAddress("localhost:2223"),
+		wish.WithPublicKeyAuth(func(ssh.Context, ssh.PublicKey) bool { return true }),
 		wish.WithMiddleware(
 			bm.Middleware(func(s ssh.Session) (tea.Model, []tea.ProgramOption) {
+				keyTypeCounter.WithLabelValues(s.PublicKey().Type()).Inc()
 				pty, _, active := s.Pty()
 				if !active {
 					fmt.Println("no active terminal, skipping")
