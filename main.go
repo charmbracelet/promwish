@@ -3,13 +3,13 @@ package promwish
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
+	"github.com/charmbracelet/log"
 	"github.com/charmbracelet/ssh"
 	"github.com/charmbracelet/wish"
 	"github.com/prometheus/client_golang/prometheus"
@@ -100,7 +100,7 @@ func Listen(address string) {
 			log.Fatalf("Failed to start metrics server: %s\n", err)
 		}
 	}()
-	log.Printf("Serving metrics at http://%s/metrics", address)
+	log.Infof("Serving metrics at http://%s/metrics", address)
 
 	<-done
 	log.Print("Stopping metrics server")
@@ -108,7 +108,7 @@ func Listen(address string) {
 	defer func() { cancel() }()
 
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatalf("Failed to shutdown metrics server: %+v", err)
+		log.Fatal("Failed to shutdown metrics server", "error", err)
 	}
-	log.Print("Shutdown metrics server")
+	log.Info("Shutdown metrics server")
 }

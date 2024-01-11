@@ -9,12 +9,12 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/log"
 	"github.com/charmbracelet/promwish"
 	"github.com/charmbracelet/ssh"
 	"github.com/charmbracelet/wish"
@@ -23,7 +23,7 @@ import (
 
 func main() {
 	s, err := wish.NewServer(
-		wish.WithAddress("localhost:2222"),
+		wish.WithAddress("localhost:2223"),
 		wish.WithMiddleware(
 			bm.Middleware(func(s ssh.Session) (tea.Model, []tea.ProgramOption) {
 				pty, _, active := s.Pty()
@@ -37,23 +37,23 @@ func main() {
 				}
 				return m, []tea.ProgramOption{}
 			}),
-			promwish.Middleware("localhost:9222", "my-app"),
+			promwish.Middleware("localhost:9223", "my-app"),
 		),
 	)
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatal("Fail to start SSH server", "error", err)
 	}
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
 		if err = s.ListenAndServe(); err != nil {
-			log.Fatalln(err)
+			log.Fatal("Fail to start HTTP server", "error", err)
 		}
 	}()
 	<-done
 	if err := s.Close(); err != nil {
-		log.Fatalln(err)
+		log.Fatal("Fail to close SSH server", "error", err)
 	}
 }
 
