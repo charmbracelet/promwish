@@ -103,12 +103,12 @@ func Listen(address string) {
 	log.Info("Starting metrics server", "address", "http://"+address+"/metrics")
 	
 	<-done
-	log.Info("Stopping metrics server", "address", "http://"+address+"/metrics")
+	log.Info("Stopping metrics server")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer func() { cancel() }()
 
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatal("Failed to shutdown metrics server", "error", err)
 	}
-	log.Info("Shutdown metrics server", "address", "http://"+address+"/metrics")
+	log.Info("Shutdown metrics server")
 }
