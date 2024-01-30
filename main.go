@@ -97,18 +97,18 @@ func Listen(address string) {
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Failed to start metrics server: %s\n", err)
+			log.Fatal("Failed to start metrics server:", "error", err)
 		}
 	}()
-	log.Infof("Serving metrics at http://%s/metrics", address)
-
+	log.Info("Serving metrics", "address", "http://"+address+"/metrics")
+	
 	<-done
-	log.Print("Stopping metrics server")
+	log.Info("Stopping metrics server", "address", "http://"+address+"/metrics")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer func() { cancel() }()
 
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatal("Failed to shutdown metrics server", "error", err)
 	}
-	log.Info("Shutdown metrics server")
+	log.Info("Shutdown metrics server", "address", "http://"+address+"/metrics")
 }
