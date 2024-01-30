@@ -100,7 +100,7 @@ func Listen(address string) {
 			log.Fatal("Failed to start metrics server:", "error", err)
 		}
 	}()
-	log.Info("Serving metrics", "address", "http://"+address+"/metrics")
+	log.Info("Starting metrics server", "address", "http://"+address+"/metrics")
 	
 	<-done
 	log.Info("Stopping metrics server", "address", "http://"+address+"/metrics")
