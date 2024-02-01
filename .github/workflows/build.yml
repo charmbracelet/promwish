@@ -1,23 +1,20 @@
 name: Build
 
-on:
-  push:
-  pull_request:
+on: [push, pull_request]
 
 jobs:
   build:
     strategy:
       matrix:
-        go-version: [~1.17, ^1]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version: ${{ matrix.go-version }}
-          cache: true
-      - run: go build -v ./...
-      - run: go test -failfast -race -coverpkg=./... -covermode=atomic -coverprofile=coverage.txt ./... -timeout 5m
-      - uses: codecov/codecov-action@v4
-        with:
-          file: ./coverage.txt
+        go_version: ["1.19", stable]
+    uses: charmbracelet/meta/.github/workflows/build.yml@main
+    with:
+      go_version: ${{ matrix.go_version }}
+
+  snapshot:
+    uses: charmbracelet/meta/.github/workflows/snapshot.yml@main
+    secrets:
+      goreleaser_key: ${{ secrets.GORELEASER_KEY }}
+
+  coverage:
+    uses: charmbracelet/meta/.github/workflows/coverage.yml@main
