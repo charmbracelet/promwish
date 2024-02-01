@@ -1,6 +1,6 @@
 module github.com/charmbracelet/promwish
 
-go 1.20
+go 1.17
 
 require (
 	github.com/charmbracelet/log v0.3.1
