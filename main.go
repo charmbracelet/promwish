@@ -35,20 +35,20 @@ func Middleware(address, app string) wish.Middleware {
 	return MiddlewareWithCommand(address, app, DefaultCommandFn)
 }
 
-// MiddlewareWithServer() starts a HTTP server on the given address, serving
+// MiddlewareWithServer starts a HTTP server on the given address, serving
 // the metrics from the default registerer to /metrics.
 func MiddlewareWithServer(server *Server, app string) wish.Middleware {
 	return MiddlewareWithServerAndCommand(server, app, DefaultCommandFn)
 }
 
-// MiddlewareWithCommand() starts a HTTP server on the given address, serving
+// MiddlewareWithCommand starts a HTTP server on the given address, serving
 // the metrics from the default registerer to /metrics, using the given
 // CommandFn to extract the `command` label value.
 func MiddlewareWithCommand(address, app string, fn CommandFn) wish.Middleware {
 	return MiddlewareWithServerAndCommand(NewServer(address), app, fn)
 }
 
-// MiddlewareWithServerAndCommand() starts a HTTP server on the given address,
+// MiddlewareWithServerAndCommand starts a HTTP server on the given address,
 // serving the metrics from the default registerer to /metrics, using the given
 // CommandFn to extract the `command` label value.
 func MiddlewareWithServerAndCommand(server *Server, app string, fn CommandFn) wish.Middleware {
@@ -131,7 +131,7 @@ func (s *Server) Shutdown(ctx context.Context) error {
 	return nil
 }
 
-// Listen starts a HTTP server on the given address, serving the metrics from the default registerer to /metrics.
+// Listen starts a HTTP server onthe given address, serving the metrics from the default registerer to /metrics.
 // It handles exit signals to gracefully shutdown the server.
 func Listen(address string) {
 	ListenServer(NewServer(address))
