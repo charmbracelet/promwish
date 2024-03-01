@@ -3,6 +3,7 @@ package promwish
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
@@ -84,26 +85,49 @@ func MiddlewareRegistry(registry prometheus.Registerer, constLabels prometheus.L
 	}
 }
 
-// Listen starts a HTTP server on the given address, serving the metrics from the default registerer to /metrics.
-// It handles exit signals to gracefully shutdown the server.
-func Listen(address string) {
+type Server struct {
+	srv *http.Server
+}
+
+func NewServer(address string) *Server {
 	srv := &http.Server{
 		Addr:    address,
 		Handler: promhttp.Handler(),
 	}
+	return &Server{srv: srv}
+}
+
+func (s *Server) Start() error {
+	log.Info("Starting metrics server", "address", "http://"+s.srv.Addr+"/metrics")
+	if err := s.srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		return fmt.Errorf("could not start metrics server: %w", err)
+	}
+	return nil
+}
+
+func (s *Server) Shutdown(ctx context.Context) error {
+	log.Info("Shutting down metrics server")
+	if err := s.srv.Shutdown(ctx); err != nil {
+		return fmt.Errorf("could not shut down metrics server: %w", err)
+	}
+	return nil
+}
+
+// Listen starts a HTTP server on the given address, serving the metrics from the default registerer to /metrics.
+// It handles exit signals to gracefully shutdown the server.
+func Listen(address string) {
+	srv := NewServer(address)
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := srv.Start(); err != nil {
 			log.Fatal("Failed to start metrics server:", "error", err)
 		}
 	}()
-	log.Info("Starting metrics server", "address", "http://"+address+"/metrics")
-	
+
 	<-done
-	log.Info("Stopping metrics server")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer func() { cancel() }()
 
