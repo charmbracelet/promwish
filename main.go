@@ -35,14 +35,23 @@ func Middleware(address, app string) wish.Middleware {
 	return MiddlewareWithCommand(address, app, DefaultCommandFn)
 }
 
+// MiddlewareWithServer() starts a HTTP server on the given address, serving
+// the metrics from the default registerer to /metrics.
+func MiddlewareWithServer(server *Server, app string) wish.Middleware {
+	return MiddlewareWithServerAndCommand(server, app, DefaultCommandFn)
+}
+
 // MiddlewareWithCommand() starts a HTTP server on the given address, serving
 // the metrics from the default registerer to /metrics, using the given
 // CommandFn to extract the `command` label value.
 func MiddlewareWithCommand(address, app string, fn CommandFn) wish.Middleware {
-	return MiddlewareWithServer(NewServer(address), app, fn)
+	return MiddlewareWithServerAndCommand(NewServer(address), app, fn)
 }
 
-func MiddlewareWithServer(server *Server, app string, fn CommandFn) wish.Middleware {
+// MiddlewareWithServerAndCommand() starts a HTTP server on the given address,
+// serving the metrics from the default registerer to /metrics, using the given
+// CommandFn to extract the `command` label value.
+func MiddlewareWithServerAndCommand(server *Server, app string, fn CommandFn) wish.Middleware {
 	go func() {
 		ListenServer(server)
 	}()
@@ -89,10 +98,13 @@ func MiddlewareRegistry(registry prometheus.Registerer, constLabels prometheus.L
 	}
 }
 
+// Server is a simple HTTP server that serves the metrics from the default registerer to /metrics.
 type Server struct {
 	srv *http.Server
 }
 
+// NewServer returns a new Server.
+// The address should be in the form "host:port".
 func NewServer(address string) *Server {
 	srv := &http.Server{
 		Addr:    address,
@@ -101,6 +113,7 @@ func NewServer(address string) *Server {
 	return &Server{srv: srv}
 }
 
+// Start starts the HTTP server.
 func (s *Server) Start() error {
 	log.Info("Starting metrics server", "address", "http://"+s.srv.Addr+"/metrics")
 	if err := s.srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -109,6 +122,7 @@ func (s *Server) Start() error {
 	return nil
 }
 
+// Shutdown gracefully shuts down the server.
 func (s *Server) Shutdown(ctx context.Context) error {
 	log.Info("Shutting down metrics server")
 	if err := s.srv.Shutdown(ctx); err != nil {
@@ -123,7 +137,7 @@ func Listen(address string) {
 	ListenServer(NewServer(address))
 }
 
-// Listen starts a HTTP server on the given address, serving the metrics from the default registerer to /metrics.
+// ListenServer starts a HTTP server on the given address, serving the metrics from the default registerer to /metrics.
 // It handles exit signals to gracefully shutdown the server.
 func ListenServer(srv *Server) {
 	done := make(chan os.Signal, 1)
