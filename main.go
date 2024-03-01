@@ -3,6 +3,7 @@ package promwish
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
@@ -84,29 +85,57 @@ func MiddlewareRegistry(registry prometheus.Registerer, constLabels prometheus.L
 	}
 }
 
-// Listen starts a HTTP server on the given address, serving the metrics from the default registerer to /metrics.
-// It handles exit signals to gracefully shutdown the server.
-func Listen(address string) {
+// Server is the metrics HTTP server.
+type Server struct {
+	srv *http.Server
+}
+
+// Creates a new `Server` with the given address.
+func NewServer(address string, promHadler http.Handler) *Server {
 	srv := &http.Server{
 		Addr:    address,
-		Handler: promhttp.Handler(),
+		Handler: promHadler,
 	}
+	return &Server{srv: srv}
+}
+
+// ListenAndServe starts the metrics server.
+func (s *Server) ListenAndServe() error {
+	if err := s.srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		return fmt.Errorf("metrics: %w", err)
+	}
+	return nil
+}
+
+// Shutdown the metrics server with the given context.
+func (s *Server) Shutdown(ctx context.Context) error {
+	if err := s.srv.Shutdown(ctx); err != nil {
+		return fmt.Errorf("metrics: %w", err)
+	}
+	return nil
+}
+
+// Listen creates and starts a HTTP metrics server on the given address,
+// serving the metrics from the default registerer to /metrics.
+// It handles exit signals to gracefully shuts down the server.
+func Listen(address string) {
+	srv := NewServer(address, promhttp.Handler())
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
+	log.Info("Starting metrics server", "address", "http://"+address+"/metrics")
 	go func() {
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := srv.ListenAndServe(); err != nil {
 			log.Fatal("Failed to start metrics server:", "error", err)
 		}
 	}()
-	log.Info("Starting metrics server", "address", "http://"+address+"/metrics")
-	
+
 	<-done
-	log.Info("Stopping metrics server")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer func() { cancel() }()
 
+	log.Info("Shutting down metrics server")
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatal("Failed to shutdown metrics server", "error", err)
 	}
