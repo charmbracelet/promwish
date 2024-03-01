@@ -39,8 +39,12 @@ func Middleware(address, app string) wish.Middleware {
 // the metrics from the default registerer to /metrics, using the given
 // CommandFn to extract the `command` label value.
 func MiddlewareWithCommand(address, app string, fn CommandFn) wish.Middleware {
+	return MiddlewareWithServer(NewServer(address), app, fn)
+}
+
+func MiddlewareWithServer(server *Server, app string, fn CommandFn) wish.Middleware {
 	go func() {
-		Listen(address)
+		ListenServer(server)
 	}()
 	return MiddlewareRegistry(
 		prometheus.DefaultRegisterer,
@@ -116,8 +120,12 @@ func (s *Server) Shutdown(ctx context.Context) error {
 // Listen starts a HTTP server on the given address, serving the metrics from the default registerer to /metrics.
 // It handles exit signals to gracefully shutdown the server.
 func Listen(address string) {
-	srv := NewServer(address)
+	ListenServer(NewServer(address))
+}
 
+// Listen starts a HTTP server on the given address, serving the metrics from the default registerer to /metrics.
+// It handles exit signals to gracefully shutdown the server.
+func ListenServer(srv *Server) {
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
