@@ -85,44 +85,48 @@ func MiddlewareRegistry(registry prometheus.Registerer, constLabels prometheus.L
 	}
 }
 
+// Server is the metrics HTTP server.
 type Server struct {
 	srv *http.Server
 }
 
-func NewServer(address string) *Server {
+// Creates a new `Server` with the given address.
+func NewServer(address string, promHadler http.Handler) *Server {
 	srv := &http.Server{
 		Addr:    address,
-		Handler: promhttp.Handler(),
+		Handler: promHadler,
 	}
 	return &Server{srv: srv}
 }
 
-func (s *Server) Start() error {
-	log.Info("Starting metrics server", "address", "http://"+s.srv.Addr+"/metrics")
+// ListenAndServe starts the metrics server.
+func (s *Server) ListenAndServe() error {
 	if err := s.srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		return fmt.Errorf("could not start metrics server: %w", err)
+		return fmt.Errorf("metrics: %w", err)
 	}
 	return nil
 }
 
+// Shutdown the metrics server with the given context.
 func (s *Server) Shutdown(ctx context.Context) error {
-	log.Info("Shutting down metrics server")
 	if err := s.srv.Shutdown(ctx); err != nil {
-		return fmt.Errorf("could not shut down metrics server: %w", err)
+		return fmt.Errorf("metrics: %w", err)
 	}
 	return nil
 }
 
-// Listen starts a HTTP server on the given address, serving the metrics from the default registerer to /metrics.
-// It handles exit signals to gracefully shutdown the server.
+// Listen creates and starts a HTTP metrics server on the given address,
+// serving the metrics from the default registerer to /metrics.
+// It handles exit signals to gracefully shuts down the server.
 func Listen(address string) {
-	srv := NewServer(address)
+	srv := NewServer(address, promhttp.Handler())
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
+	log.Info("Starting metrics server", "address", "http://"+address+"/metrics")
 	go func() {
-		if err := srv.Start(); err != nil {
+		if err := srv.ListenAndServe(); err != nil {
 			log.Fatal("Failed to start metrics server:", "error", err)
 		}
 	}()
@@ -131,6 +135,7 @@ func Listen(address string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer func() { cancel() }()
 
+	log.Info("Shutting down metrics server")
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatal("Failed to shutdown metrics server", "error", err)
 	}
