@@ -131,7 +131,7 @@ func (s *Server) Shutdown(ctx context.Context) error {
 	return nil
 }
 
-// Listen starts a HTTP server onthe given address, serving the metrics from the default registerer to /metrics.
+// Listen starts a HTTP server on the given address, serving the metrics from the default registerer to /metrics.
 // It handles exit signals to gracefully shutdown the server.
 func Listen(address string) {
 	ListenServer(NewServer(address))
