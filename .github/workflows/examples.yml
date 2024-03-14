@@ -3,13 +3,13 @@ name: examples
 on:
   push:
     branches:
-      - 'main'
+      - "main"
     paths:
-      - '.github/workflows/examples.yml'
-      - './_examples/go.mod'
-      - './_examples/go.sum'
-      - './go.mod'
-      - './go.sum'
+      - ".github/workflows/examples.yml"
+      - "./_examples/go.mod"
+      - "./_examples/go.sum"
+      - "./go.mod"
+      - "./go.sum"
   workflow_dispatch: {}
 
 jobs:
@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: '^1'
+          go-version: "stable"
           cache: true
       - shell: bash
         run: |
@@ -32,5 +32,3 @@ jobs:
           branch: main
           commit_user_name: actions-user
           commit_user_email: actions@github.com
-
-
