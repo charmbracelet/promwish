@@ -13,12 +13,12 @@ import (
 	"os/signal"
 	"syscall"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/log"
-	"github.com/charmbracelet/promwish"
+	tea "github.com/charmbracelet/bubbletea/v2"
+	"github.com/charmbracelet/log/v2"
+	"github.com/charmbracelet/promwish/v2"
 	"github.com/charmbracelet/ssh"
-	"github.com/charmbracelet/wish"
-	bm "github.com/charmbracelet/wish/bubbletea"
+	"github.com/charmbracelet/wish/v2"
+	bm "github.com/charmbracelet/wish/v2/bubbletea"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 )
