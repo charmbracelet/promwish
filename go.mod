@@ -1,10 +1,11 @@
 module github.com/charmbracelet/promwish
 
-go 1.21
+go 1.23.0
+
 toolchain go1.24.1
 
 require (
-	github.com/charmbracelet/log v0.4.1
+	github.com/charmbracelet/log v0.4.2
 	github.com/charmbracelet/ssh v0.0.0-20250128164007-98fd5ae11894
 	github.com/charmbracelet/wish v1.4.7
 	github.com/prometheus/client_golang v1.22.0
